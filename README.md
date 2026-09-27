@@ -18,11 +18,29 @@
 │   ├── app/routers/          每个业务模块一组接口
 │   ├── app/services/         业务规则与状态流转
 │   └── app/store.py          内存数据仓库与示例数据
+├── scripts/dev.sh            一键启动前后端（含示例数据）
+├── .env.example              端口等本地配置模板，复制为 .env 后生效
 ├── .gitignore
 └── docker-compose.yml
 ```
 
-## 启动
+## 一键启动（推荐）
+
+```bash
+make dev          # 等价于 ./scripts/dev.sh
+```
+
+首次运行会自动建虚拟环境、装前后端依赖并载入示例数据；之后重复启动会跳过
+已装好的依赖，直接起服务。端口、代理目标等配置统一从根目录 `.env` 读
+（首次运行会按 `.env.example` 自动生成，改端口只改这一处）。
+
+启动日志里会分别看到 `[backend]` / `[frontend]` 的就绪行；依赖装不上、
+端口被占用时会打印可读的原因和处理建议。`Ctrl+C` 可同时停止前后端。
+
+依赖版本已锁定（后端 `backend/requirements.txt` 全部钉版，前端
+`package-lock.json` 已入库），换台机器装出来的版本一致。
+
+## 手工启动
 
 ### 后端
 
@@ -31,6 +49,9 @@ cd backend
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ./run.sh
 ```
+
+`run.sh` 幂等：`.venv` 已存在且依赖没变时会跳过安装直接启动；
+端口取自根目录 `.env` 的 `BACKEND_PORT`（默认 8000）。
 
 健康检查：`curl http://127.0.0.1:8000/api/health`
 
@@ -43,7 +64,9 @@ npm run dev
 ```
 
 前端默认监听 `http://127.0.0.1:5173/`，dev server 不会自动打开浏览器，
-需要自己访问。`/api` 由 vite 代理到后端 `http://127.0.0.1:8000`。
+需要自己访问。`/api` 由 vite 代理到后端，目标地址从根目录 `.env` 的
+`BACKEND_HOST`/`BACKEND_PORT` 读（默认 `http://127.0.0.1:8000`），
+也可用环境变量 `VITE_PROXY_TARGET` 临时覆盖。
 
 ## 业务模块
 
