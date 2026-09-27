@@ -85,3 +85,6 @@ desktop.ini
 *.db
 *.pid
 *.seed
+
+# 一键开发脚本记录的依赖指纹（依赖目录本身已在上方忽略）
+.dev-stamps/
